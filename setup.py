@@ -1,0 +1,36 @@
+from setuptools import setup
+
+setup(
+    name='jupyterhub-duoauthenticator',
+    version='1.0',
+    description='Duo Two-Factor Authentication for JupyterHub',
+    url='https://github.com/unlhcc/duoauthenticator',
+    author='Adam Caprez',
+    author_email='acaprez2@unl.edu',
+    license='GPLv3',
+    python_requires=">=3.4",
+    packages=['duoauthenticator'],
+    include_package_data=True,
+    data_files = [('share/jupyter/duo/templates',
+                 ['share/jupyter/duo/templates/duo.html']),
+                 ('share/jupyter/hub/static/components/duo/css',
+                 ['share/jupyter/hub/static/components/duo/css/Duo-Frame.css']),
+                 ('share/jupyter/hub/static/components/duo/js',
+                 ['share/jupyter/hub/static/components/duo/js/Duo-Web-v2.js',
+                  'share/jupyter/hub/static/components/duo/js/Duo-Web-v2.min.js']),
+    ],
+    install_requires=[
+        'duo_web',
+        'jupyterhub',
+    ],
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'Operating System :: Unix',
+        'Topic :: System :: Systems Administration :: Authentication/Directory',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+    ],
+)
