@@ -8,7 +8,6 @@ setup(
     author='Adam Caprez',
     author_email='acaprez2@unl.edu',
     license='GPLv3',
-    python_requires=">=3.4",
     packages=['duoauthenticator'],
     include_package_data=True,
     data_files = [('share/jupyter/hub/templates',
