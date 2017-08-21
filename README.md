@@ -36,7 +36,7 @@ import os, hashlib
 print hashlib.sha1(os.urandom(32)).hexdigest()
 ```
 
-More details can be found in the [Duo documentation] (https://duo.com/docs/duoweb).
+More details can be found in the [Duo documentation](https://duo.com/docs/duoweb).
 
 ## Usage ##
 
@@ -104,5 +104,5 @@ c.DuoAuthenticator.duo_custom_html=''
 
 Must contain at minimum an iframe with `id='duo_iframe'`, as well as `data-host`
 and `data-sig-request` template attributes to be populated.  See
-the [Duo documentation] (https://duo.com/docs/duoweb#appendices) for more details
+the [Duo documentation](https://duo.com/docs/duoweb#appendices) for more details
 on the iframe configuration.
