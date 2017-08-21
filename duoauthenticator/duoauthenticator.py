@@ -84,7 +84,7 @@ class DuoAuthenticator(Authenticator):
 
     @default('primary_authenticator')
     def _primary_auth_default(self):
-        return self.primary_auth_class()
+        return self.primary_auth_class(parent=self, db=self.db)
 
     duo_custom_html = Unicode(
         help="""
