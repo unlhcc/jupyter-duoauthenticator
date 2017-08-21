@@ -1,7 +1,7 @@
 from jupyterhub.auth import Authenticator, PAMAuthenticator
 from jupyterhub.handlers import LoginHandler
 from tornado import gen
-from traitlets import Unicode, Type, Instance, default, observe
+from traitlets import Unicode, Type, Instance, default
 import duo_web
 
 class DuoHandler(LoginHandler):
