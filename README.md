@@ -43,6 +43,7 @@ More details can be found in the [Duo documentation](https://duo.com/docs/duoweb
 Enable the authenticator by setting the following in your `jupyter_config.py`:
 
 ```python
+import duoauthenticator
 c.JupyterHub.authenticator_class = 'duoauthenticator.DuoAuthenticator'
 ```
 
