@@ -4,7 +4,7 @@ setup(
     name='jupyterhub-duoauthenticator',
     version='1.0',
     description='Duo Two-Factor Authentication for JupyterHub',
-    url='https://github.com/unlhcc/duoauthenticator',
+    url='https://github.com/unlhcc/jupyter-duoauthenticator',
     author='Adam Caprez',
     author_email='acaprez2@unl.edu',
     license='GPLv3',
