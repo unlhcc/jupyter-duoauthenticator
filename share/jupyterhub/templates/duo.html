@@ -11,7 +11,11 @@
     <link rel="stylesheet" type="text/css" href={{ static_url("components/duo/css/Duo-Frame.css") }}>
     <h1>Duo Authentication Prompt</h1>
     <script>
-      require(['{{static_url("components/duo/js/Duo-Web-v2.js") }}']);
+      require(['{{static_url("components/duo/js/Duo-Web-v2.js") }}'], function(duo){
+        console.log('Loading Duo');
+        console.log(duo);
+        duo();
+      });
     </script>
     <iframe id="duo_iframe"
             title="Two-Factor Authentication"
