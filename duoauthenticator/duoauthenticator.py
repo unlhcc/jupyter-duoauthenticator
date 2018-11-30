@@ -2,6 +2,7 @@ from jupyterhub.auth import Authenticator, PAMAuthenticator
 from jupyterhub.handlers import LoginHandler
 from tornado import gen
 from traitlets import Unicode, Type, Instance, default
+from jinja2 import Environment
 import duo_web
 
 class DuoHandler(LoginHandler):
@@ -22,21 +23,30 @@ class DuoHandler(LoginHandler):
         if sig_response:
             # Duo signed response present, do secondary auth
             yield LoginHandler.post(self)
+
         else:
             # no sig_response, do primary auth and generate the request
-            username = yield self.authenticator.do_primary_auth(self,data)
-            if username:
+            data = yield self.authenticator.do_primary_auth(self,data)
+            if data:
                 sig_request = duo_web.sign_request(self.authenticator.ikey,
-                    self.authenticator.skey, self.authenticator.akey, username)
+                    self.authenticator.skey, self.authenticator.akey, data['name'])
+
+                common_args = {
+                    'host': self.authenticator.apihost,
+                    'sig_request': sig_request,
+                    'data': data,
+                }
+
                 html = self.render_template('duo.html',
-                    host=self.authenticator.apihost,
-                    sig_request=sig_request,
-                    custom_html = self.authenticator.duo_custom_html)
+                    custom_fields = Environment().from_string(self.authenticator.duo_custom_fields).render(common_args),
+                    custom_html = Environment().from_string(self.authenticator.duo_custom_html).render(common_args),
+                    **common_args
+                )
                 self.finish(html)
             else:
                 html = self._render(
                     login_error='Invalid username or password',
-                    username=username,
+                    username=None,
                 )
                 self.finish(html)
 
@@ -96,6 +106,16 @@ class DuoAuthenticator(Authenticator):
         """
     ).tag(config=True)
 
+    duo_custom_fields = Unicode(
+        help="""
+        Custom fields within the duo_form that get posted back to the authenticator.
+
+        Example value: <input type="hidden" name="someMetadata" value="{{stuff}}" />
+
+        Defaults to an empty string.
+        """
+    ).tag(config=True)
+
     def get_handlers(self,app):
         return [
             (r'/login', DuoHandler)
@@ -112,11 +132,14 @@ class DuoAuthenticator(Authenticator):
         authenticated_username = duo_web.verify_response(self.ikey,\
             self.skey, self.akey, sig_response)
         if authenticated_username:
-            self.log.debug("Duo Authentication succeeded for user '%s'", \
+            self.log.info("Duo Authentication succeeded for user '%s'", \
                 authenticated_username)
-            return authenticated_username
+            return {
+                'name': authenticated_username,
+                'auth_state': data,
+            }
         else:
-            self.log.warning("Duo Authentication failed for user '%s'", username)
+            self.log.warning("Duo Authentication failed for user")
             return None
 
     @gen.coroutine
@@ -125,8 +148,8 @@ class DuoAuthenticator(Authenticator):
 
         Return None otherwise.
         """
-        primary_username = yield self.primary_authenticator.authenticate(handler, data)
-        if primary_username:
-            return primary_username
+        data = yield self.primary_authenticator.authenticate(handler, data)
+        if data:
+          return data
         else:
-            return None
+          return None
