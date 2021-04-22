@@ -7,8 +7,7 @@ import duo_web
 class DuoHandler(LoginHandler):
     """Duo Two-Factor Handler"""
 
-    @gen.coroutine
-    def post(self):
+    async def post(self):
         """Override the default POST handler.  If the Duo signed response isn't present,
         do primary auth and POST back to the same URL with the request.  If the response 
         is present, call the stock LoginHandler post method, which will call 
@@ -21,20 +20,21 @@ class DuoHandler(LoginHandler):
         sig_response = self.get_argument("sig_response", default=None)
         if sig_response:
             # Duo signed response present, do secondary auth
-            yield LoginHandler.post(self)
+            await LoginHandler.post(self)
         else:
             # no sig_response, do primary auth and generate the request
-            username = yield self.authenticator.do_primary_auth(self,data)
+            username = await self.authenticator.do_primary_auth(self,data)
             if username:
                 sig_request = duo_web.sign_request(self.authenticator.ikey,
                     self.authenticator.skey, self.authenticator.akey, username)
-                html = self.render_template('duo.html',
+                html = await self.render_template('duo.html',
                     host=self.authenticator.apihost,
                     sig_request=sig_request,
-                    custom_html = self.authenticator.duo_custom_html)
+                    custom_html=self.authenticator.duo_custom_html)
                 self.finish(html)
             else:
-                html = self._render(
+                # self._render is defined by LoginHandler
+                html = await self._render(
                     login_error='Invalid username or password',
                     username=username,
                 )
@@ -101,8 +101,7 @@ class DuoAuthenticator(Authenticator):
             (r'/login', DuoHandler)
         ]
 
-    @gen.coroutine
-    def authenticate(self, handler, data):
+    async def authenticate(self, handler, data):
         """Do secondary authentication with Duo, and return the username if successful.
 
         Return None otherwise.
@@ -119,13 +118,12 @@ class DuoAuthenticator(Authenticator):
             self.log.warning("Duo Authentication failed for user '%s'", username)
             return None
 
-    @gen.coroutine
-    def do_primary_auth(self, handler, data):
+    async def do_primary_auth(self, handler, data):
         """Do primary authentication, and return the username if successful.
 
         Return None otherwise.
         """
-        primary_username = yield self.primary_authenticator.authenticate(handler, data)
+        primary_username = await self.primary_authenticator.authenticate(handler, data)
         if primary_username:
             return primary_username
         else:
