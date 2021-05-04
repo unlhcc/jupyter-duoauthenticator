@@ -123,8 +123,8 @@ class DuoAuthenticator(Authenticator):
 
         Return None otherwise.
         """
-        primary_username = await self.primary_authenticator.authenticate(handler, data)
-        if primary_username:
-            return primary_username
+        user = await self.primary_authenticator.get_authenticated_user(handler, data)
+        if user:
+            return user['name']
         else:
             return None
